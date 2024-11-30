@@ -1,52 +1,46 @@
 #include "cameradevice.h"
-#include <QTimer>
-#include <QImage>
+#include "cvmatandqimage.h"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "cvmatandqimage.h"
+#include <QImage>
+#include <QTimer>
 
-CameraDevice::CameraDevice(QObject *parent) :
-    QObject(parent)
-{
-    m_capture = new cv::VideoCapture;
-    m_timer = new QTimer(this);
+CameraDevice::CameraDevice(QObject *parent) : QObject(parent) {
+  m_capture = new cv::VideoCapture;
+  m_timer = new QTimer(this);
 
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+  connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
-CameraDevice::~CameraDevice()
-{
-    delete m_capture;
-    m_capture = NULL;
+CameraDevice::~CameraDevice() {
+  delete m_capture;
+  m_capture = NULL;
 }
 
-bool CameraDevice::start()
-{
-    if (m_capture->isOpened())
-        return true;
-
-    m_capture->open(CV_CAP_ANY);
-    if (m_capture->isOpened())
-        m_timer->start(40);
-
-    return m_capture->isOpened();
-}
-
-bool CameraDevice::stop()
-{
-    if (m_capture->isOpened())
-        m_capture->release();
-
+bool CameraDevice::start() {
+  if (m_capture->isOpened())
     return true;
+
+  m_capture->open(cv::CAP_ANY);
+  if (m_capture->isOpened())
+    m_timer->start(40);
+
+  return m_capture->isOpened();
 }
 
-void CameraDevice::onTimeout()
-{
-    if (!m_capture->isOpened())
-        return;
+bool CameraDevice::stop() {
+  if (m_capture->isOpened())
+    m_capture->release();
 
-    static cv::Mat frame;
-    *m_capture >> frame;
-    if (frame.cols)
-        emit imageReady(QtOcv::mat2Image(frame));
+  return true;
+}
+
+void CameraDevice::onTimeout() {
+  if (!m_capture->isOpened())
+    return;
+
+  static cv::Mat frame;
+  *m_capture >> frame;
+  if (frame.cols)
+    emit imageReady(QtOcv::mat2Image(frame));
 }

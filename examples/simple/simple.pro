@@ -1,6 +1,3 @@
-include(../../opencv.pri)
-include(../shared/shared.pri)
-
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -17,3 +14,12 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp
+
+CONFIG *= opencv
+WARNING_CONFIG += MSG_LIST_OFF
+OPENCV_CONFIG += OCV_LIB_COMMON
+
+include(../shared/shared.pri)
+
+target.path = $${PWD}/../bin
+INSTALLS += target
