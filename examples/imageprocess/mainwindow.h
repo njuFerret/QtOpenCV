@@ -4,45 +4,44 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QSharedPointer>
-#include "cvmatandqimage.h"
+#include <opencv2/core.hpp>
 
 namespace Ui {
 class MainWindow;
 }
 class RecentFiles;
 class AbstractConvert;
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+  Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+  explicit MainWindow(QWidget *parent = 0);
+  ~MainWindow();
 
 private slots:
-    void onFileOpenActionTriggered();
-    void onRecentFilesTriggered(const QString &filePath);
-    void onFileSaveActionTriggered();
-    void onFileSaveAsActionTriggered();
-    void onImageActionTriggered();
-    void onFilterPreviewButtonClicked();
-    void onFilterApplyButtonClicked();
-    void onColorUnderMouseChanged(const QColor &c);
+  void onFileOpenActionTriggered();
+  void onRecentFilesTriggered(const QString &filePath);
+  void onFileSaveActionTriggered();
+  void onFileSaveAsActionTriggered();
+  void onImageActionTriggered();
+  void onFilterPreviewButtonClicked();
+  void onFilterApplyButtonClicked();
+  void onColorUnderMouseChanged(const QColor &c);
 
 private:
-    void closeEvent(QCloseEvent *evt);
-    void loadSettings();
-    void saveSettings();
-    void createImageAction(int id, const QString &text);
-    void createImageActions();
-    void doOpen(const QString &filePath);
+  void closeEvent(QCloseEvent *evt);
+  void loadSettings();
+  void saveSettings();
+  void createImageAction(int id, const QString &text);
+  void createImageActions();
+  void doOpen(const QString &filePath);
 
-    Ui::MainWindow *ui;
-    RecentFiles *m_recentFiles;
-    QMap<int, QAction*> m_imageActions;
-    cv::Mat m_originalMat;
-    cv::Mat m_processMat;
-    QSharedPointer<AbstractConvert> m_convert;
+  Ui::MainWindow *ui;
+  RecentFiles *m_recentFiles;
+  QMap<int, QAction *> m_imageActions;
+  cv::Mat m_originalMat;
+  cv::Mat m_processMat;
+  QSharedPointer<AbstractConvert> m_convert;
 };
 
-#endif // MAINWINDOW_H
+#endif        // MAINWINDOW_H

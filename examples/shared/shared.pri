@@ -1,7 +1,12 @@
-INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+INCLUDEPATH += $${PWD}
+DEPENDPATH += $${PWD}
 
 HEADERS += \
-    $$PWD/cvimagewidget.h
+    $${PWD}/cvimagewidget.h
 SOURCES += \
-    $$PWD/cvimagewidget.cpp
+    $${PWD}/cvimagewidget.cpp
+
+
+
+message($${PWD})
+message($$PWD)

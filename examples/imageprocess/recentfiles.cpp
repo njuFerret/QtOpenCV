@@ -23,108 +23,86 @@
 **
 ****************************************************************************/
 #include "recentfiles.h"
-#include <QMenu>
 #include <QEvent>
+#include <QMenu>
 
-RecentFiles::RecentFiles(QObject *parent) :
-    QObject(parent), m_maxCount(50), m_maxPathLength(400), m_dirty(true), m_menu(new QMenu("Recent Files"))
-{
+RecentFiles::RecentFiles(QObject *parent)
+    : QObject(parent), m_maxCount(50), m_maxPathLength(400), m_dirty(true), m_menu(new QMenu("Recent Files")) {
 
-    m_menu->installEventFilter(this);
+  m_menu->installEventFilter(this);
 }
 
-RecentFiles::~RecentFiles()
-{
-    if (!m_menu.isNull())
-        delete m_menu;
+RecentFiles::~RecentFiles() {
+  if (!m_menu.isNull())
+    delete m_menu;
 }
 
-QMenu *RecentFiles::menu() const
-{
-    return m_menu;
+QMenu *RecentFiles::menu() const { return m_menu; }
+
+int RecentFiles::maxFileCount() const { return m_maxCount; }
+
+void RecentFiles::setMaxFileCount(int maxCount) {
+  m_maxCount = maxCount;
+  if (m_maxCount > m_fileList.count())
+    m_fileList = m_fileList.mid(0, m_maxCount);
 }
 
-int RecentFiles::maxFileCount() const
-{
-    return m_maxCount;
+QStringList RecentFiles::fileList() const { return m_fileList; }
+
+void RecentFiles::setFileList(const QStringList &fileList) {
+  m_fileList = fileList;
+  m_dirty = true;
 }
 
-void RecentFiles::setMaxFileCount(int maxCount)
-{
-    m_maxCount = maxCount;
-    if (m_maxCount > m_fileList.count())
-        m_fileList = m_fileList.mid(0, m_maxCount);
+QString RecentFiles::mostRecentFile() const { return m_fileList.isEmpty() ? QString() : m_fileList.at(0); }
+
+void RecentFiles::add(const QString &filePath) {
+  if (m_fileList.count() > 0 && m_fileList[0] == filePath)
+    return;
+
+  m_fileList.removeAll(filePath);
+  m_fileList.insert(0, filePath);
+  while (m_fileList.count() > m_maxCount)
+    m_fileList.removeLast();
+
+  m_dirty = true;
 }
 
-QStringList RecentFiles::fileList() const
-{
-    return m_fileList;
+void RecentFiles::clear() {
+  if (m_fileList.isEmpty())
+    return;
+  m_fileList.clear();
+  m_dirty = true;
 }
 
-void RecentFiles::setFileList(const QStringList &fileList)
-{
-    m_fileList = fileList;
+void RecentFiles::remove(const QString &filePath) {
+  if (m_fileList.removeAll(filePath))
     m_dirty = true;
 }
 
-QString RecentFiles::mostRecentFile() const
-{
-    return m_fileList.isEmpty() ? QString() : m_fileList.at(0);
+void RecentFiles::onActionTriggered() {
+  QAction *act = qobject_cast<QAction *>(sender());
+  if (!act)
+    return;
+
+  emit activated(act->data().toString());
 }
 
-void RecentFiles::add(const QString &filePath)
-{
-    if (m_fileList.count() > 0 && m_fileList[0] == filePath)
-        return;
+bool RecentFiles::eventFilter(QObject *obj, QEvent *evt) {
+  if (obj == m_menu && evt->type() == QEvent::Show && m_dirty) {
+    m_menu->clear();
+    foreach (QString filePath, m_fileList) {
+      QString title = QFontMetrics(m_menu->font()).elidedText(filePath, Qt::ElideMiddle, m_maxPathLength);
+      QAction *act = new QAction(title, m_menu.data());
+      act->setData(filePath);
+      m_menu->addAction(act);
 
-    m_fileList.removeAll(filePath);
-    m_fileList.insert(0, filePath);
-    while (m_fileList.count() > m_maxCount)
-        m_fileList.removeLast();
-
-   m_dirty = true;
-}
-
-void RecentFiles::clear()
-{
-    if (m_fileList.isEmpty())
-        return;
-    m_fileList.clear();
-    m_dirty = true;
-}
-
-void RecentFiles::remove(const QString &filePath)
-{
-    if (m_fileList.removeAll(filePath))
-        m_dirty = true;
-}
-
-void RecentFiles::onActionTriggered()
-{
-    QAction *act = qobject_cast<QAction *>(sender());
-    if (!act)
-        return;
-
-    emit activated(act->data().toString());
-}
-
-bool RecentFiles::eventFilter(QObject *obj, QEvent *evt)
-{
-    if (obj == m_menu && evt->type() == QEvent::Show && m_dirty) {
-        m_menu->clear();
-        foreach (QString filePath, m_fileList) {
-            QString title = QFontMetrics(m_menu->font()).elidedText(filePath, Qt::ElideMiddle, m_maxPathLength);
-            QAction *act = new QAction(title, m_menu.data());
-            act->setData(filePath);
-            m_menu->addAction(act);
-
-            connect(act, SIGNAL(triggered()), SLOT(onActionTriggered()));
-        }
-        m_menu->addSeparator();
-        QAction *clearAction = m_menu->addAction(tr("Clear Menu"), this, SLOT(clear()));
-        clearAction->setDisabled(m_fileList.isEmpty());
-        m_dirty = false;
+      connect(act, &QAction::triggered, this, &RecentFiles::onActionTriggered);
     }
-    return QObject::eventFilter(obj, evt);
+    m_menu->addSeparator();
+    QAction *clearAction = m_menu->addAction(tr("Clear Menu"), this, &RecentFiles::clear);
+    clearAction->setDisabled(m_fileList.isEmpty());
+    m_dirty = false;
+  }
+  return QObject::eventFilter(obj, evt);
 }
-
