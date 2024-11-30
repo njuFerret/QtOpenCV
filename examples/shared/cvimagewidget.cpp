@@ -71,7 +71,7 @@ ImageWidgetPrivate::ImageWidgetPrivate(ImageWidget *q) : q(q) {
    Note: the function only works when the view does not rotate, or rotate n*90 degree.
 */
 void ImageWidgetPrivate::handleScaleChanged(double rScale, bool causedByWheel) {
-  if (fabs(rScale - 1) < 10e-4)
+  if (fabs(rScale - 1) < 10e-4)        // if (qFuzzyIsNull(qAbs(rScale - 1)))
     return;
 
   if (causedByWheel)

@@ -64,7 +64,7 @@ void calcFFT(const cv::Mat &input, cv::Mat &output) {
 Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog) {
   ui->setupUi(this);
 
-  connect(ui->openButton, SIGNAL(clicked()), SLOT(onOpenButtonClicked()));
+  connect(ui->openButton, &QPushButton::clicked, this, &Dialog::onOpenButtonClicked);
 }
 
 Dialog::~Dialog() { delete ui; }
