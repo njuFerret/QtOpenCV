@@ -30,8 +30,8 @@ void calcFFT(const cv::Mat &input, cv::Mat &output) {
   cv::magnitude(planes[0], planes[1], planes[0]);        // planes[0] = magnitude
   output = planes[0];
 
-  qDebug() << "ERROR at: output += cv::Scalar_<float>::all(1); ";
-  // output += cv::Scalar_<float>::all(1);        // switch to logarithmic scale
+  output += cv::Scalar::all(1);        // switch to logarithmic scale
+  // output += cv::Scalar_<float>::all(1);        // cv::Scalar 等价于 cv::Scalar_<double>, 此处用float会出错
   cv::log(output, output);
 
   // crop the spectrum, if it has an odd number of rows or columns
@@ -79,6 +79,7 @@ void Dialog::onOpenButtonClicked() {
     return;
 
   ui->imageWidget->setImage(img);
+  ui->imageWidget->setCurrentScale(0);
 
   cv::Mat mat = QtOcv::image2Mat(img, CV_8UC1);
   cv::Mat out_mat;

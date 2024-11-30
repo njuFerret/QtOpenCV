@@ -222,11 +222,12 @@ void ImageWidget::wheelEvent(QWheelEvent *event) {
     // Disable auto fit!!
     d->m_autoAdjustEnabled = false;
 
-    double numDegrees = -(event->angleDelta().y()) / 8.0;
+    //double numDegrees = -(event->angleDelta().y()) / 8.0;             // 滚轮向上缩小，向下放大
+    double numDegrees = (event->angleDelta().y()) / 8.0;                // 滚轮向上放大，向下缩小
     double numSteps = numDegrees / 15.0;
     double factor = pow(1.125, numSteps);
 
-    if (numSteps < 0)
+    if (numSteps > 0)
       factor = qMin(factor, d->m_scaleMax / d->m_scale);
     else
       factor = qMax(factor, d->m_scaleMin / d->m_scale);
