@@ -40,7 +40,7 @@ public:
   ImageWidgetPrivate(ImageWidget *q);
   ~ImageWidgetPrivate() {}
 
-  void dealWithScaleChanged(double rSacle, bool causedByWheel = true);
+  void handleScaleChanged(double rSacle, bool causedByWheel = true);
   void doAutoFit();
   QColor getColorUnderMouse();
 
@@ -70,7 +70,7 @@ ImageWidgetPrivate::ImageWidgetPrivate(ImageWidget *q) : q(q) {
    When scale changed, a signal will be emitted with the new scale.
    Note: the function only works when the view does not rotate, or rotate n*90 degree.
 */
-void ImageWidgetPrivate::dealWithScaleChanged(double rScale, bool causedByWheel) {
+void ImageWidgetPrivate::handleScaleChanged(double rScale, bool causedByWheel) {
   if (fabs(rScale - 1) < 10e-4)
     return;
 
@@ -193,7 +193,7 @@ void ImageWidget::setCurrentScale(double factor) {
   else if (factor < d->m_scaleMin)
     factor = d->m_scaleMin;
 
-  d->dealWithScaleChanged(factor / d->m_scale);
+  d->handleScaleChanged(factor / d->m_scale);
 }
 
 void ImageWidget::setMouseWheelEnabled(bool enable) { d->m_wheelScaleEnabled = enable; }
@@ -226,12 +226,12 @@ void ImageWidget::wheelEvent(QWheelEvent *event) {
     double numSteps = numDegrees / 15.0;
     double factor = pow(1.125, numSteps);
 
-    if (numSteps > 0)
+    if (numSteps < 0)
       factor = qMin(factor, d->m_scaleMax / d->m_scale);
     else
       factor = qMax(factor, d->m_scaleMin / d->m_scale);
 
-    d->dealWithScaleChanged(factor);
+    d->handleScaleChanged(factor);
   }
 
   // QGraphicsView::wheelEvent(event);

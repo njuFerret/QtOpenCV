@@ -30,7 +30,8 @@ void calcFFT(const cv::Mat &input, cv::Mat &output) {
   cv::magnitude(planes[0], planes[1], planes[0]);        // planes[0] = magnitude
   output = planes[0];
 
-  output += cv::Scalar_<float>::all(1);        // switch to logarithmic scale
+  qDebug() << "ERROR at: output += cv::Scalar_<float>::all(1); ";
+  // output += cv::Scalar_<float>::all(1);        // switch to logarithmic scale
   cv::log(output, output);
 
   // crop the spectrum, if it has an odd number of rows or columns
